@@ -1,0 +1,17 @@
+import cv2
+import numpy as np
+from libreriascreadas import model as m1
+from libreriascreadas import advancedimagefunctions as ai1
+video_capture = cv2.VideoCapture("yolo_test.mp4")
+
+while True:
+    #after readin a frame, just call the function that detect object in an image
+    frame_grabbed, frame = video_capture.read()
+    if not frame_grabbed:
+        break #because end of the video
+    converted_frame = ai1.object_detection_YOLO(frame)
+    cv2.imshow('yolo algorithm for videos', converted_frame)
+    cv2.waitKey(1)
+
+video_capture.release()
+cv2.destroyAllWindows()

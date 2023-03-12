@@ -1,0 +1,15 @@
+TYPE	R-CNNs 	Faster R-CNN	YOLO	SSD		
+struggle with	real time o-d		small objects , accuracy			
+for identify region prop	selective search	RPN'S other network , called region proposal network RPN.S	.			
+for predict bound. boxes	some regions prop	some regions prop	1 single convolutional neural network	multibox		
+unwanted bboxes			Non maximum supression approach	IoU and loss calculation		
+for classification	SVM	SVM				
+network output	features map		class probability , bbox values	multiscale feature maps		
+advantage		accuracy	Speed	viable, video 		
+Pooling	ROI Pooling		spatial pyramid pooling			
+			deep neural network	neural network		
+			x y w h 	x y w h		
+			yolo image size	CPU use		
+architecture			2 fully connected layers	convolutional layers		
+						
+			IA, self driving cars	video forensics, legal investigations, landmark detections, and many more.		

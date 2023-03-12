@@ -1,0 +1,9 @@
+
+
+def construct_class_names(file_name ='class_names'): #lee el archivo llamado 'class_names'
+    with open(file_name,'rt') as file: #rt is ''read as text''
+        names = file.read().rstrip('\n').split('\n') # split makes this from the text of file ['person','car','cat','dog']
+        #each row is a element of array.
+    #rstrip removes any white spaces at the end of the string
+
+    return names

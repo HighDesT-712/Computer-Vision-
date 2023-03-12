@@ -1,0 +1,57 @@
+import cv2
+import numpy as np
+THRESHOLD = 0.3
+#the lower value:  the fewer bounding boxes will remain
+SUPPRESSION_THRESHOLD = 0.3
+YOLO_IMAGE_SIZE = 320  #320 x320 are the pixels that yolo algorithm is dealing with
+
+def find_objects(model_outputs):
+    bounding_box_locations = []
+    class_ids=[]
+    confidence_values=[]
+
+    for output in model_outputs:
+        for prediction in output:
+            #finding de maximum probability
+            class_probabilities = prediction[5:] #just consider class related values, 80 values in this example
+            class_id = np.argmax(class_probabilities) # [0.15 0.7 0.15  15% probabilite]
+            #confidence is basically the probability that the detected object belogn to a certain class
+            confidence = class_probabilities[class_id]
+
+            if confidence > THRESHOLD:
+                # x,y,w,h,conf  w is position 2
+                w,h =  int(prediction[2] * YOLO_IMAGE_SIZE) , int(prediction[3] * YOLO_IMAGE_SIZE)
+
+                #the center of the bounding box (we should calculate it)
+                x, y = int(prediction[0] * YOLO_IMAGE_SIZE - w/2), int(prediction[1] * YOLO_IMAGE_SIZE - h/2) #es ecuacion grafica, facil
+                bounding_box_locations.append([x,y,w,h])
+                class_ids.append(class_id) # 0 is person,  2 is car , 5 is bus ,  this are the ids, is because that is whats the neural network will return to us
+                confidence_values.append(float(confidence))
+
+    box_indices_to_keep= cv2.dnn.NMSBoxes(bounding_box_locations, confidence_values,THRESHOLD, SUPPRESSION_THRESHOLD)
+    return box_indices_to_keep,bounding_box_locations, class_ids, confidence_values
+
+def show_detected_images(img,bounding_box_ids,all_bounding_boxes,class_ids,confidence_values,width_ratio,height_ratio):
+    for index in bounding_box_ids:
+        # [[1]] en el caso que tengas esto, le cambias por index[0]
+        bounding_box = all_bounding_boxes[index]
+        x,y,w,h = int(bounding_box[0]),int(bounding_box[1]),int(bounding_box[2]),int(bounding_box[3])
+
+        #transform the locations and coordeenates because the resized images.
+        x = int( x * width_ratio )
+        y = int( y * height_ratio)
+        w = int( w * width_ratio )
+        h = int( h * height_ratio)
+
+        #just person and cars detection
+        # [[1]] en el caso que tengas esto, le cambias por index[0]
+        if class_ids[index] == 2:
+            cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0)) #BGR, so it is color blue
+            class_width_confidence = 'CAR' + str(int(confidence_values[index]*100))+ '%'
+            cv2.putText(img,class_width_confidence,(x,y-10),cv2.FONT_HERSHEY_COMPLEX_SMALL,0.5 ,(255,0,0),1)
+
+        # 0 index is person.
+        if class_ids[index] == 0:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0))  # BGR, so it is color blue
+            class_width_confidence = 'person' + str(int(confidence_values[index] * 100)) + '%'
+            cv2.putText(img, class_width_confidence, (x, y - 10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.5, (255, 0, 0), 1)
